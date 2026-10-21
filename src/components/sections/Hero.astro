@@ -43,10 +43,10 @@ const gateLabels = ['CHOOSE', 'TEST', 'BUILD', 'SCALE'];
             <text x={`${g * 100}%`} y="40" text-anchor="middle" class="hero__gate-label">{gateLabels[i]}</text>
           </g>
         ))}
-        <svg x={`${(gates as number[])[3] * 100}%`} y="18%" width={`${(1 - (gates as number[])[3]) * 100 - 6}%`} height="56%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
+        <svg x={`${(gates as number[])[3] * 100}%`} y="27%" width={`${(1 - (gates as number[])[3]) * 100 - 6}%`} height="50%" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">
           <path d="M0 92 C 22 90, 34 74, 50 58 S 80 18, 100 6" fill="none" stroke="#D9894A" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" />
         </svg>
-        <text x="94%" y="14%" text-anchor="end" class="hero__rev-label">REVENUE</text>
+        <text x="94%" y="27%" text-anchor="end" class="hero__rev-label" dy="-12">REVENUE</text>
       </svg>
     ))}
     <canvas class="hero__canvas" aria-hidden="true"></canvas>

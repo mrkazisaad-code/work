@@ -27,7 +27,7 @@ for (const w of widths) {
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.waitForTimeout(600);
   if (args.includes('--full')) await page.screenshot({ path: `${out}${tag}-full.png`, fullPage: true });
-  await page.addStyleTag({ content: '.site-header,.skip-link{visibility:hidden!important}' });
+  if (!nojs) await page.addStyleTag({ content: '.site-header,.skip-link{visibility:hidden!important}' });
   const ids = ['top', 'why', 'what', 'how', 'base', 'where', 'europe', 'who', 'engage', 'record', 'contact'];
   for (const id of ids) {
     const el = page.locator(`#${id}`);

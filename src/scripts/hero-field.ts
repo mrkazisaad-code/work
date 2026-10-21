@@ -109,7 +109,7 @@ export function initHeroField() {
   };
 
   // Revenue line in field fractions: rises from lower-left to upper-right after the last gate
-  const lineY = (s: number) => 0.74 - 0.56 * (s * s * (1.4 - 0.4 * s));
+  const lineY = (s: number) => 0.76 - 0.47 * (s * s * (1.4 - 0.4 * s));
   const lineX = (s: number) => lineStart + s * (0.955 - lineStart);
 
   let pointer: { x: number; y: number } | null = null;
