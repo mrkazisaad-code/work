@@ -51,7 +51,7 @@ The brief did not supply these values, so they are left as bracketed placeholder
 
 ## Images to host
 
-The website lives in a different repository (`mrkazisaad-code/koeos`). Upload these files from `assets/` so they are served at the URLs the signatures already use:
+The website lives in a different repository (`mrkazisaad-code/koeos`). These files from `assets/` are hosted there and live at the URLs the signatures use (added in mrkazisaad-code/koeos#3, 22 Oct 2026). After re-rendering an asset, copy it to the same path and redeploy:
 
 | File | Upload to (koeos repository) | Served at |
 |---|---|---|
@@ -59,7 +59,7 @@ The website lives in a different repository (`mrkazisaad-code/koeos`). Upload th
 | `assets/koeos-strip-signature@2x.png` | `public/email/koeos-strip-signature@2x.png` | https://koeos.io/email/koeos-strip-signature@2x.png |
 | `assets/koeos-strip-banner@2x.png` | `public/email/koeos-strip-banner@2x.png` | https://koeos.io/email/koeos-strip-banner@2x.png |
 
-Images are always referenced by absolute https URL. There are no base64 or CID images. Until the files are uploaded, the signatures show alt text in place of the images and remain complete.
+Images are always referenced by absolute https URL. There are no base64 or CID images. If an image cannot load, the signature shows its alt text and remains complete.
 
 | Asset | Display size | Export | File size | Alt text |
 |---|---|---|---|---|

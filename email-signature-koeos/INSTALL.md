@@ -9,7 +9,7 @@ Most clients need the rendered signature pasted in, not the HTML code.
 3. Press Ctrl+C or Cmd+C to copy it.
 4. Paste it into the client's signature editor as described below.
 
-**Before you start:** the images load from `https://koeos.io/email/`. Upload them first (see README, "Images to host"), or the pasted signature will show alt text in place of the images.
+The images load from `https://koeos.io/email/`, where they are already hosted.
 
 After installing, send a test email to a Gmail address and to an Outlook address. Check it in light and dark mode, and on a phone.
 
