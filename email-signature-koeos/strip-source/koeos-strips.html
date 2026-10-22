@@ -1,0 +1,213 @@
+<!doctype html>
+<!--
+  KOEOS brand strips and wordmark: one editable source.
+  Edit CONFIG below (text, sizes, diagram), then render the PNGs at 2x:
+    node email-signature-koeos/scripts/render-strips.mjs
+  Each element with a data-export attribute becomes one PNG in ../assets/.
+  The PNGs carry the typography, so emails never need web fonts.
+-->
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>KOEOS brand strips (source)</title>
+<style>
+  @font-face { font-family: 'Schibsted Grotesk'; src: url('../../public/fonts/schibsted-grotesk-latin-700-normal.woff2') format('woff2'); font-weight: 700; }
+  @font-face { font-family: 'IBM Plex Mono'; src: url('../../public/fonts/ibm-plex-mono-latin-500-normal.woff2') format('woff2'); font-weight: 500; }
+  body { margin: 0; padding: 32px; background: #e9ecec; font-family: Arial, sans-serif; color: #3D4A47; }
+  h2 { font-size: 13px; font-weight: 600; margin: 32px 0 8px; }
+  h2:first-child { margin-top: 0; }
+  .export { display: inline-block; line-height: 0; }
+  .export svg { display: block; }
+  .checker { background: repeating-conic-gradient(#d4d8d8 0 25%, #fff 0 50%) 0 0 / 12px 12px; padding: 8px; display: inline-block; }
+</style>
+</head>
+<body>
+  <h2>Wordmark (transparent, mid-tone teal that holds on white and dark)</h2>
+  <div class="checker"><div class="export" id="wordmark" data-export="koeos-wordmark@2x.png"></div></div>
+  <div class="checker" style="background:#1f1f1f"><div class="export" id="wordmark-dark-check"></div></div>
+
+  <h2>A. Proposal and newsletter banner, 1200 × 220</h2>
+  <div class="export" id="strip-a" data-export="koeos-strip-banner@2x.png"></div>
+
+  <h2>B. Signature strip, 480 × 64</h2>
+  <div class="export" id="strip-b" data-export="koeos-strip-signature@2x.png"></div>
+
+<script>
+/* ===================== CONFIG: edit here ===================== */
+const CONFIG = {
+  colours: {
+    ink950: '#0B1113',
+    ink900: '#111A1D',
+    text100: '#E8EEEC',
+    teal300: '#6FC3B8',
+    copper: '#D9894A',
+    gate: '#6F807C',        // gate lines, about 45% opacity
+    grid: '#26363B',        // background grid
+    wordmark: '#2E8F87',    // mid-tone teal: holds on white and on dark backgrounds
+  },
+  wordmark: { text: 'KOEOS', height: 16, fontSize: 21, tracking: 0.08 },
+  bannerA: {
+    width: 1200, height: 220,
+    wordmark: 'KOEOS',
+    headline: 'WE MAKE TECHNOLOGY PAY.',
+    secondary: 'PRODUCT · OPERATING MODEL · COMMERCIALISATION · VENTURE BUILDING',
+    diagram: { x: 884, y: 34, w: 282, h: 150, labels: true, dotR: 4, stroke: 1.6 },
+  },
+  stripB: {
+    width: 480, height: 64,
+    headline: 'WE MAKE TECHNOLOGY PAY.',
+    // Gate labels would be about 6px at this size, so they are dropped
+    diagram: { x: 290, y: 6, w: 172, h: 52, labels: false, dotR: 2.6, stroke: 1.3, simple: true },
+  },
+  gateLabels: ['CHOOSE', 'TEST', 'BUILD', 'SCALE'],
+  riseDegrees: 37,          // copper line after SCALE: gentle, never steep
+};
+/* ============================================================= */
+
+const NS = 'http://www.w3.org/2000/svg';
+const el = (name, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, name);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const C = CONFIG.colours;
+
+// Smooth curve through points (Catmull-Rom converted to cubic Béziers)
+function smooth(pts) {
+  let d = `M${pts[0][0]} ${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2;
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${c1[0].toFixed(1)} ${c1[1].toFixed(1)} ${c2[0].toFixed(1)} ${c2[1].toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
+function grid(svg, w, h, size) {
+  const g = el('g', { stroke: C.grid, 'stroke-opacity': 0.45, 'stroke-width': 1 }, svg);
+  for (let x = size; x < w; x += size) el('line', { x1: x + 0.5, x2: x + 0.5, y1: 0, y2: h }, g);
+  for (let y = size; y < h; y += size) el('line', { x1: 0, x2: w, y1: y + 0.5, y2: y + 0.5 }, g);
+}
+
+/**
+ * Gates diagram: four evenly spaced gates, paths of ideas that stop early,
+ * and one path that passes SCALE and rises as a copper line to a copper dot.
+ */
+function diagram(svg, o) {
+  const g = el('g', { transform: `translate(${o.x} ${o.y})` }, svg);
+  const labelSpace = o.labels ? 26 : 0;
+  const top = labelSpace, bottom = o.h;
+  const mid = top + (bottom - top) * 0.52;
+  // Gates span the first 72% of the width; the copper rise uses the rest
+  const step = (o.w * 0.72) / 3.4;
+  const gx = [0, 1, 2, 3].map((i) => step * (0.4 + i));
+  const s = (bottom - top) / 100; // vertical unit
+
+  // Gate lines and labels
+  gx.forEach((x, i) => {
+    el('line', { x1: x, x2: x, y1: top, y2: bottom, stroke: C.gate, 'stroke-opacity': 0.45, 'stroke-width': 1, 'stroke-dasharray': '3 3' }, g);
+    if (o.labels) {
+      const t = el('text', { x, y: 12, 'text-anchor': 'middle', fill: C.text100, 'fill-opacity': 0.78, 'font-family': 'IBM Plex Mono', 'font-weight': 500, 'font-size': 11, 'letter-spacing': 1.3 }, g);
+      t.textContent = CONFIG.gateLabels[i];
+    }
+  });
+
+  const live = { fill: 'none', stroke: C.teal300, 'stroke-width': o.stroke, 'stroke-linecap': 'round' };
+  const dim = { ...live, 'stroke-opacity': 0.45 };
+  const dot = (x, y, r = o.dotR, fill = C.teal300, op = 1) => el('circle', { cx: x, cy: y, r, fill, 'fill-opacity': op }, g);
+
+  // Paths that stop early (dimmed, ending in a faded dot)
+  const stopped = o.simple
+    ? [
+        [[0, mid + 30 * s], [gx[0], mid + 20 * s], [gx[0] + step * 0.55, mid + 34 * s]],
+        [[0, mid + 14 * s], [gx[0], mid + 8 * s], [gx[1], mid + 10 * s], [gx[1] + step * 0.5, mid + 26 * s]],
+      ]
+    : [
+        [[0, mid + 34 * s], [gx[0], mid + 22 * s], [gx[0] + step * 0.6, mid + 38 * s]],
+        [[0, mid + 16 * s], [gx[0], mid + 12 * s], [gx[1], mid + 14 * s], [gx[1] + step * 0.55, mid + 30 * s]],
+        [[0, mid - 30 * s], [gx[0], mid - 22 * s], [gx[1], mid - 14 * s], [gx[2], mid - 6 * s], [gx[2] + step * 0.5, mid + 14 * s]],
+      ];
+  stopped.forEach((pts) => {
+    el('path', { d: smooth(pts), ...dim }, g);
+    dot(pts[0][0], pts[0][1]);
+    const e = pts[pts.length - 1];
+    dot(e[0], e[1], o.dotR, C.teal300, 0.45);
+  });
+
+  // Path that converges onto the main line
+  if (!o.simple) {
+    const conv = [[0, mid - 12 * s], [gx[0], mid - 6 * s], [gx[1], mid]];
+    el('path', { d: smooth(conv), ...live }, g);
+    dot(conv[0][0], conv[0][1]);
+  }
+
+  // Main path through all four gates
+  const main = [[0, mid - 4 * s], [gx[0], mid - 2 * s], [gx[1], mid], [gx[2], mid], [gx[3], mid]];
+  el('path', { d: smooth(main), ...live }, g);
+  main.forEach(([x, y], i) => dot(x, y, i === 0 ? o.dotR : o.dotR));
+
+  // Copper line after SCALE, rising at about 37 degrees, ending in a copper dot
+  const run = o.w - gx[3] - o.dotR * 2;
+  const rise = Math.min(run * Math.tan((CONFIG.riseDegrees * Math.PI) / 180), mid - top - o.dotR);
+  const end = [gx[3] + run, mid - rise];
+  el('path', { d: `M${gx[3]} ${mid} L${end[0].toFixed(1)} ${end[1].toFixed(1)}`, fill: 'none', stroke: C.copper, 'stroke-width': o.stroke + 0.4, 'stroke-linecap': 'round' }, g);
+  dot(gx[3], mid, o.dotR, C.copper);
+  dot(end[0], end[1], o.dotR * 1.15, C.copper);
+}
+
+function text(svg, str, attrs) {
+  const t = el('text', attrs, svg);
+  t.textContent = str;
+  return t;
+}
+
+/* Wordmark: transparent PNG sized to the text */
+function buildWordmark(target, colour) {
+  const o = CONFIG.wordmark;
+  const svg = el('svg', { xmlns: NS, width: 200, height: o.height, viewBox: `0 0 200 ${o.height}` });
+  target.appendChild(svg);
+  const t = text(svg, o.text, { x: 0, y: o.height - 1, fill: colour, 'font-family': 'Schibsted Grotesk', 'font-weight': 700, 'font-size': o.fontSize, 'letter-spacing': (o.fontSize * o.tracking).toFixed(2) });
+  // Trim to the glyphs (drop the trailing letter-spacing)
+  const w = Math.ceil(t.getBBox().width - o.fontSize * o.tracking) + 1;
+  svg.setAttribute('width', w);
+  svg.setAttribute('viewBox', `0 0 ${w} ${o.height}`);
+  return { width: w, height: o.height };
+}
+
+/* A: proposal and newsletter banner */
+function buildA(target) {
+  const o = CONFIG.bannerA;
+  const svg = el('svg', { xmlns: NS, width: o.width, height: o.height, viewBox: `0 0 ${o.width} ${o.height}` });
+  target.appendChild(svg);
+  el('rect', { width: o.width, height: o.height, fill: C.ink950 }, svg);
+  grid(svg, o.width, o.height, 24);
+  text(svg, o.wordmark, { x: 48, y: 128, fill: C.text100, 'font-family': 'Schibsted Grotesk', 'font-weight': 700, 'font-size': 50, 'letter-spacing': 5 });
+  el('line', { x1: 286.5, x2: 286.5, y1: 66, y2: 154, stroke: C.gate, 'stroke-opacity': 0.6 }, svg);
+  text(svg, o.headline, { x: 318, y: 104, fill: C.text100, 'font-family': 'Schibsted Grotesk', 'font-weight': 700, 'font-size': 30, 'letter-spacing': 0.3 });
+  text(svg, o.secondary, { x: 319, y: 142, fill: C.text100, 'fill-opacity': 0.72, 'font-family': 'IBM Plex Mono', 'font-weight': 500, 'font-size': 12, 'letter-spacing': 0.9 });
+  diagram(svg, o.diagram);
+}
+
+/* B: signature strip (no wordmark; the signature already has it) */
+function buildB(target) {
+  const o = CONFIG.stripB;
+  const svg = el('svg', { xmlns: NS, width: o.width, height: o.height, viewBox: `0 0 ${o.width} ${o.height}` });
+  target.appendChild(svg);
+  el('rect', { width: o.width, height: o.height, fill: C.ink950 }, svg);
+  grid(svg, o.width, o.height, 16);
+  text(svg, o.headline, { x: 20, y: 38.5, fill: C.text100, 'font-family': 'Schibsted Grotesk', 'font-weight': 700, 'font-size': 17, 'letter-spacing': 0.3 });
+  diagram(svg, o.diagram);
+}
+
+document.fonts.load('700 20px "Schibsted Grotesk"').then(() => document.fonts.load('500 12px "IBM Plex Mono"')).then(() => {
+  window.WORDMARK = buildWordmark(document.getElementById('wordmark'), C.wordmark);
+  buildWordmark(document.getElementById('wordmark-dark-check'), C.wordmark);
+  buildA(document.getElementById('strip-a'));
+  buildB(document.getElementById('strip-b'));
+  document.body.dataset.ready = '1';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "company": {
+    "details": "[COMPANY NAME AND LEGAL FORM] · [REGISTERED OFFICE ADDRESS] · R.C.S. Luxembourg [RCS NUMBER]",
+    "location": "Luxembourg",
+    "website": "https://koeos.io",
+    "websiteLabel": "koeos.io",
+    "proposition": "We make technology pay.",
+    "privacy": {
+      "enabled": true,
+      "label": "How we handle personal data:",
+      "url": "https://koeos.io/privacy"
+    },
+    "disclaimer": {
+      "enabled": false,
+      "text": "[DISCLAIMER TEXT, ONE OR TWO SENTENCES, TO BE SUPPLIED]"
+    }
+  },
+  "assets": {
+    "baseUrl": "https://koeos.io/email/",
+    "wordmark": "koeos-wordmark@2x.png",
+    "strip": "koeos-strip-signature@2x.png"
+  },
+  "defaultDiscipline": "Product · Operating model · Commercialisation · Venture building",
+  "people": [
+    {
+      "slug": "qazi-saad-khan",
+      "name": "Qazi Saad Khan",
+      "title": "[TITLE]",
+      "discipline": null,
+      "email": "[EMAIL]",
+      "phone": "[PHONE]",
+      "linkedin": "https://www.linkedin.com/in/qazisaad/",
+      "strip": false
+    },
+    {
+      "slug": "david-waroquier",
+      "name": "David Waroquier",
+      "title": "[TITLE]",
+      "discipline": null,
+      "email": "[EMAIL]",
+      "phone": "[PHONE]",
+      "linkedin": "https://www.linkedin.com/in/david-waroquier-a60990/",
+      "strip": false
+    },
+    {
+      "slug": "generic-template",
+      "name": "[NAME]",
+      "title": "[TITLE]",
+      "discipline": null,
+      "email": "[EMAIL]",
+      "phone": "[PHONE]",
+      "linkedin": "[LINKEDIN URL]",
+      "strip": false
+    }
+  ]
+}
